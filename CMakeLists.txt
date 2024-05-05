@@ -8,8 +8,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Remove explicit compiler settings from CMakeLists.txt to allow CMake to use defaults
-# This is important for cross-platform compatibility
 add_executable(GAME game.cpp
                     template/opencl.cpp
                     template/opengl.cpp
@@ -39,7 +37,7 @@ target_link_libraries(GAME PUBLIC ZLIB::ZLIB)
 find_package(glfw3 REQUIRED)
 target_link_libraries(GAME PUBLIC glfw)
 
-# If specific additional libraries are needed (like m and dl on Unix-based systems), use conditional linking
+# If specific additional libraries are needed (like m and dl on Unix-based systems), we use conditional linking
 include(CheckLibraryExists)
 check_library_exists(m pow "" HAVE_LIB_M)
 if(HAVE_LIB_M)
@@ -64,5 +62,5 @@ add_custom_target(copy_assets ALL
     COMMENT "Copying assets to build directory"
 )
 
-# Ensure that your main target triggers the asset copy
+# Ensure that the main target triggers the asset copy
 add_dependencies(GAME copy_assets)
