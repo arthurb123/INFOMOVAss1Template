@@ -3,7 +3,7 @@
 # Ensure the script starts in the directory where the script is located
 cd "$(dirname "$0")"
 
-# Check if we are in the correct directory that contains both the 'vcpkg' folder and your project's CMakeLists.txt
+# Check if we are in the correct directory that contains both the 'vcpkg' folder and the project's CMakeLists.txt
 if [ ! -d "vcpkg" ]; then
     echo "Error: vcpkg directory not found"
     exit 1
@@ -34,7 +34,7 @@ echo "Installing packages"
 
 # Configure the project with CMake, specifying the path to the vcpkg toolchain file
 echo "Configuring CMake project"
-cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE="$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake"
+cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE="$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake" -DUSE_ARM=ON
 
 # Build the project using CMake
 echo "Building CMake project"

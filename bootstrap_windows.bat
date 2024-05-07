@@ -4,7 +4,7 @@ SETLOCAL
 :: Ensure the script starts in the directory where the batch script is located
 cd /d "%~dp0"
 
-:: Check if we are in the correct directory that contains both the 'vcpkg' folder and your project's CMakeLists.txt
+:: Check if we are in the correct directory that contains both the 'vcpkg' folder and the project's CMakeLists.txt
 if not exist "vcpkg" (
     echo Error: vcpkg directory not found
     exit /b
@@ -34,7 +34,7 @@ vcpkg\vcpkg install zlib
 
 :: Configure the project with CMake, specifying the path to the vcpkg toolchain file
 echo Configuring CMake project
-cmake -B build -S . -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE="%CD%\vcpkg\scripts\buildsystems\vcpkg.cmake"
+cmake -B build -S . -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE="%CD%\vcpkg\scripts\buildsystems\vcpkg.cmake"  -DUSE_ARM=OFF
 
 :: Build the project using CMake
 echo Building CMake project

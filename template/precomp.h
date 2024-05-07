@@ -4,49 +4,53 @@
 
 // A precompiled header speeds up compilation by precompiling stable code.
 // The content in this file is source code that you will likely not change
-// for your project. More info: 
+// for your project. More info:
 // www.codeproject.com/Articles/1188975/How-to-Optimize-Compilation-Times-with-Precompil
 
 #pragma once
 
 // common C++ headers
-#include <chrono>				// timing: struct Timer depends on this
-#include <fstream>				// file i/o
-#include <vector>				// standard template library std::vector
-#include <list>					// standard template library std::list
-#include <algorithm>			// standard algorithms for stl containers
-#include <string>				// strings
+#include <chrono>	 // timing: struct Timer depends on this
+#include <fstream>	 // file i/o
+#include <vector>	 // standard template library std::vector
+#include <list>		 // standard template library std::list
+#include <algorithm> // standard algorithms for stl containers
+#include <string>	 // strings
 // #include <thread>			// currently unused; enable to use Windows threads.
-#include <math.h>				// c standard math library
-#include <assert.h>				// runtime assertions
+#include <math.h>	// c standard math library
+#include <assert.h> // runtime assertions
 
 // header for AVX, and every technology before it.
 // if your CPU does not support this (unlikely), include the appropriate header instead.
 // see: https://stackoverflow.com/a/11228864/2844473
+#ifdef USE_ARM
+#include "../arm/sse2neon.h"
+#else
 #include <immintrin.h>
+#endif
 
 // shorthand for basic types
 typedef unsigned char uchar;
 typedef unsigned int uint;
 typedef unsigned short ushort;
 
-// "leak" common namespaces to all compilation units. This is not standard // C++ practice 
+// "leak" common namespaces to all compilation units. This is not standard // C++ practice
 // but a deliberate simplification for template projects. Feel free to remove this if it
 // offends you.
 using namespace std;
 
 // low-level: aligned memory allocations
 #ifdef _MSC_VER
-#define ALIGN( x ) __declspec( align( x ) )
-#define MALLOC64( x ) ( ( x ) == 0 ? 0 : _aligned_malloc( ( x ), 64 ) )
-#define FREE64( x ) _aligned_free( x )
+#define ALIGN(x) __declspec(align(x))
+#define MALLOC64(x) ((x) == 0 ? 0 : _aligned_malloc((x), 64))
+#define FREE64(x) _aligned_free(x)
 #else
-#define ALIGN( x ) __attribute__( ( aligned( x ) ) )
-#define MALLOC64( x ) ( ( x ) == 0 ? 0 : aligned_alloc( 64, ( x ) ) )
-#define FREE64( x ) free( x )
+#define ALIGN(x) __attribute__((aligned(x)))
+#define MALLOC64(x) ((x) == 0 ? 0 : aligned_alloc(64, (x)))
+#define FREE64(x) free(x)
 #endif
 #if defined(__GNUC__) && (__GNUC__ >= 4)
-#define CHECK_RESULT __attribute__ ((warn_unused_result))
+#define CHECK_RESULT __attribute__((warn_unused_result))
 #elif defined(_MSC_VER) && (_MSC_VER >= 1700)
 #define CHECK_RESULT _Check_return_
 #else
@@ -206,14 +210,18 @@ void TextFileWrite( const string& text, const char* _File );
 #include "common.h"
 
 // low-level: instruction set detection
-#ifdef _WIN32
-#include <Windows.h>
-#define cpuid(info, x) __cpuidex(info, x, 0)
-#else
+#if __linux__
 #include <cpuid.h>
 inline void cpuid(int info[4], int InfoType) {
     __cpuid_count(InfoType, 0, info[0], info[1], info[2], info[3]);
 }
+#elif defined(_WIN32)
+#include <Windows.h>
+#define cpuid(info, x) __cpuidex(info, x, 0)
+#else
+#include <cpuid/cpuinfo.hpp>
+using namespace cpuid;
+#define cpuid cpuinfo;
 #endif
 class CPUCaps // from https://github.com/Mysticial/FeatureDetector
 {
